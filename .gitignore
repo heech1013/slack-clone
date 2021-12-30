@@ -1,5 +1,16 @@
 # Exclude boilerplate provided by Zerocho
 *.idea
+alecture
+back
+front
+front-js
+front-rq
+multicampus
+multicampus-back
+nest-typeorm
+setting
+API.md
+README.md
 
 # Created by .ignore support plugin (hsz.mobi)
 logs
