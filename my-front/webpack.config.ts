@@ -80,7 +80,6 @@ const config: webpack.Configuration = {
   devServer: {
     historyApiFallback: true, // react router
     port: 3090,
-    // publicPath: "/dist/",
     proxy: {
       "/api/": {
         target: "http://localhost:3095",
