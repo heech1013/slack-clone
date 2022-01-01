@@ -1,9 +1,10 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { CollapseButton } from "@components/DMList/styles";
 import useSWR from "swr";
 import { NavLink, useParams } from "react-router-dom";
 import fetcher from "@utils/fetcher";
 import { IUser } from "@typings/db";
+import useSocket from "@hooks/useSocket";
 
 function DMList() {
   const { workspace } = useParams();
@@ -12,10 +13,18 @@ function DMList() {
     `/api/workspace/${workspace}/members`,
     fetcher
   );
+  const [socket, disconnect] = useSocket(workspace);
+  const [onlineList, setOnlineList] = useState<number[]>([]);
 
   const toggleChannelCollapse = useCallback(() => {
     setChannelCollapse((prev) => !prev);
   }, []);
+
+  useEffect(() => {
+    socket?.on("onlineList", (data: number[]) => {
+      setOnlineList(data);
+    });
+  }, [socket]);
 
   return (
     <div>
@@ -35,7 +44,7 @@ function DMList() {
       <div>
         {!channelCollapse &&
           memberData?.map((member) => {
-            const isOnline = false;
+            const isOnline = onlineList.includes(member.id);
 
             return (
               <NavLink
