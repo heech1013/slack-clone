@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Header,
   WorkspaceWrapper,
@@ -15,16 +15,38 @@ import {
 import useSWR from "swr";
 import gravatar from "gravatar";
 import { Link, Route, Switch } from "react-router-dom";
-import { IUser } from "@typings/db";
+import { IChannel, IUser } from "@typings/db";
 import fetcher from "@utils/fetcher";
 import { useParams } from "react-router-dom";
 import ChannelList from "@components/ChannelList";
 import DMList from "@components/DMList";
 import DirectMessage from "@pages/DirectMessage";
+import useSocket from "@hooks/useSocket";
 
 function Workspace() {
   const { data: userData } = useSWR<IUser>("/api/users", fetcher);
   const { workspace } = useParams();
+  const [socket, disconnect] = useSocket(workspace);
+  const { data: channelData } = useSWR<IChannel[]>(
+    userData ? `/api/workspaces/${workspace}/channels` : null,
+    fetcher
+  );
+
+  useEffect(() => {
+    if (channelData && userData && socket) {
+      console.log(socket);
+      socket.emit("login", {
+        id: userData.id,
+        // channels: channelData.map((v) => v.id),
+      });
+    }
+  }, [socket, channelData, userData]);
+
+  useEffect(() => {
+    return () => {
+      disconnect();
+    };
+  }, [workspace, disconnect]);
 
   return (
     <div>
